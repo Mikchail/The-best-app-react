@@ -12,57 +12,119 @@ import {
   UPDATE_POST_ON_PAGE,
 } from './typesActions';
 
-export const create = (post: PostTypes) => (dispatch: Dispatch) => {
-  axios.post('/api/posts', post).then((res) =>
-    dispatch({
-      type: ADD_POST,
-      payload: res.data,
-    })
+
+interface IResponse {
+  data: PostTypes
+  posts?: []
+  totalCount?: number,
+  headers: {
+    ['x-total-count']: number
+  }
+}
+export const create = (post: PostTypes) => (dispatch: Dispatch): void => {
+  axios.post('/api/posts', post).then((res: IResponse) =>{
+    dispatch(ActionCreator.addPost(res.data))
+  }
   );
 };
-export const update = (id: string | number, body: string) => (dispatch: Dispatch) => {
-  axios.put(`/api/posts/`, {body, _id: id}).then((res) => dispatch(updatePostOnPage(body, id)));
+export const update = (id: string | number, body: string) => (dispatch: Dispatch): void => {
+  axios.put(`/api/posts/`, {body, _id: id}).then(() => dispatch(ActionCreator.updatePostOnPage(body, id)));
 };
 
-export const getAll = (params: string) => (dispatch: Dispatch) => {
-  dispatch(setPostLoading(true));
+export const getAll = (params: string) => (dispatch: Dispatch): void => {
+  dispatch(ActionCreator.setPostLoading(true));
   axios
     .get('/api/posts', {params})
-    .then((res) => dispatch(getPosts(res)))
+    .then((res) => dispatch(ActionCreator.getPosts(res)))
     .catch(() => {
-      dispatch(setPostLoading(false));
-      dispatch(clearPosts());
+      dispatch(ActionCreator.setPostLoading(false));
+      dispatch(ActionCreator.clearPosts());
     });
 };
 
-export const getById = (id: string | number) => (dispatch: Dispatch) => {
-  dispatch(setPostLoading(true));
+export const getById = (id: string | number) => (dispatch: Dispatch): void => {
+  dispatch(ActionCreator.setPostLoading(true));
   axios
     .get(`/api/posts/${id}`)
-    .then((res) => dispatch(getPost(res)))
-    .catch(() => dispatch(setPostLoading(false)));
+    .then((res) => dispatch(ActionCreator.getPost(res)))
+    .catch(() => dispatch(ActionCreator.setPostLoading(false)));
 };
 
-export const remove = (id: number) => (dispatch: Dispatch) => {
-  axios.delete(`/api/posts/${id}`).then(() => dispatch(deletePostAction(id)));
+export const remove = (id: number) => (dispatch: Dispatch): void => {
+  axios.delete(`/api/posts/${id}`).then(() => dispatch(ActionCreator.deletePostAction(id)));
 };
 
-export const createLike = (postId: number, TYPE: string) => (dispatch: Dispatch) => {
-  axios.post(`/api/posts/${postId}/likes`).then((res) => dispatch(createLikeAction(res, TYPE)));
+export const createLike = (postId: number, TYPE: string) => (dispatch: Dispatch): void => {
+  axios.post(`/api/posts/${postId}/likes`).then((res) => dispatch(ActionCreator.createLikeAction(res, TYPE)));
 };
 
 export const removeLike = (postId: number, likeId: number, TYPE: string) => (dispatch: Dispatch): void => {
-  axios.delete(`/api/posts/${postId}/likes/${likeId}`).then((res) => dispatch(removeLikeAction(res, TYPE)));
+  axios.delete(`/api/posts/${postId}/likes/${likeId}`).then((res) => dispatch(ActionCreator.removeLikeAction(res, TYPE)));
 };
 
 export const createComment = (postId: number, comment: string) => (dispatch: Dispatch): void => {
-  axios.post(`/api/posts/${postId}/comments`, comment).then((res) => dispatch(updatePost(res)));
+  axios.post(`/api/posts/${postId}/comments`, comment).then((res: IResponse) => dispatch(ActionCreator.updatePost(res)));
 };
 
 export const removeComment = (postId: number, commentId: number) => (dispatch: Dispatch): void => {
-  axios.delete(`/api/posts/${postId}/comments/${commentId}`).then((res) => dispatch(updatePost(res)));
+  axios.delete(`/api/posts/${postId}/comments/${commentId}`).then((res:IResponse) => dispatch(ActionCreator.updatePost(res)));
 };
 
+
+export const ActionCreator = {
+  addPost: (data: PostTypes):AddPostType=>({
+    type: ADD_POST,
+    payload: data,
+  }),
+  updatePostOnPage: (body: string, id: string | number):UpdatePostOnPageType => ({
+    type: UPDATE_POST_ON_PAGE,
+    payload: {body, id},
+  }),
+  getPosts: (res: IResponse):GetPostsActionType => ({
+    type: GET_POSTS,
+    payload: {
+      posts: res.data,
+      totalCount: +res.headers['x-total-count'],
+    },
+  }),
+
+  getPost: (res: IResponse):GetPostActionType => ({
+    type: GET_POST,
+    payload: res.data,
+  }),
+  deletePostAction: (id: number):DeletePostActionType => ({
+    type: DELETE_POST,
+    payload: id,
+  }),
+
+  createLikeAction: (res: IResponse, TYPE: string):CreateLikeActionType => ({
+    type: TYPE,
+    payload: res.data,
+  }),
+  removeLikeAction: (res: IResponse, TYPE: string):RemoveLikeActionType => ({
+    type: TYPE,
+    payload: res.data,
+  }),
+
+  updatePost: (res: IResponse):UpdatePostType => ({
+    type: UPDATE_POST,
+    payload: res.data,
+  }),
+  clearPosts: ():ClearPostsType => ({
+    type: CLEAR_POSTS,
+  }),
+
+  setPostLoading: (isLoading: boolean):SetPostLoadingType => ({
+    type: POST_LOADING,
+    payload: isLoading,
+  }),
+};
+
+
+export type AddPostType = {
+  type: ADD_POST,
+  payload: any,
+};
 export type ClearPostsType = {
   type: CLEAR_POSTS,
 };
@@ -73,7 +135,7 @@ export type SetPostLoadingType = {
 };
 
 export type UpdatePostType = {
-  type: POST_LOADING,
+  type: UPDATE_POST,
   payload: any,
 };
 export type RemoveLikeActionType = {
@@ -95,54 +157,10 @@ export type GetPostActionType = {
   payload: any,
 };
 export type GetPostsActionType = {
-  type: GET_POST,
+  type: GET_POSTS,
   payload: any,
 };
 export type UpdatePostOnPageType = {
   type: UPDATE_POST_ON_PAGE,
   payload: any,
 };
-
-const updatePostOnPage = (body: string, id: string | number) => ({
-  type: UPDATE_POST_ON_PAGE,
-  payload: {body, id},
-});
-const getPosts = (res: any) => ({
-  type: GET_POSTS,
-  payload: {
-    posts: res.data,
-    totalCount: +res.headers['x-total-count'],
-  },
-});
-
-const getPost = (res: any) => ({
-  type: GET_POST,
-  payload: res.data,
-});
-const deletePostAction = (id: number) => ({
-  type: DELETE_POST,
-  payload: id,
-});
-
-const createLikeAction = (res: any, TYPE: string) => ({
-  type: TYPE,
-  payload: res.data,
-});
-const removeLikeAction = (res: any, TYPE: string) => ({
-  type: TYPE,
-  payload: res.data,
-});
-
-const updatePost = (res: any) => ({
-  type: UPDATE_POST,
-  payload: res.data,
-});
-
-const clearPosts = () => ({
-  type: CLEAR_POSTS,
-});
-
-const setPostLoading = (isLoading: boolean) => ({
-  type: POST_LOADING,
-  payload: isLoading,
-});

@@ -8,6 +8,7 @@ import {
   SetPostLoadingType,
   UpdatePostOnPageType,
   UpdatePostType,
+  AddPostType
 } from '../actions/post';
 import {
   ADD_POST,
@@ -48,6 +49,7 @@ export default (
     | GetPostActionType
     | GetPostsActionType
     | UpdatePostOnPageType
+    | AddPostType
 ): InitialState => {
   switch (action.type) {
     case POST_LOADING:
