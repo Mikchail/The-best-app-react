@@ -3,7 +3,7 @@ import {
   ADD_SUBSCRIPTION,
   GET_SUBSCRIPTIONS,
   DELETE_SUBSCRIPTION
-} from '../actions/types'
+} from '../actions/typesActions'
 
 const initialState = {
   subscriptions: [],

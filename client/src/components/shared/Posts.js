@@ -3,7 +3,7 @@ import {connect} from 'react-redux'
 import PropTypes from 'prop-types'
 import Pagination from "react-js-pagination"
 import {AuthTypes, PostsTypes} from '../../types';
-import {UPDATE_POSTS} from '../../actions/types'
+import {UPDATE_POSTS} from '../../actions/typesActions'
 import {getAll} from '../../actions/post'
 
 import Post from './Post'

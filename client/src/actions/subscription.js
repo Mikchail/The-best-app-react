@@ -5,7 +5,7 @@ import {
   ADD_SUBSCRIPTION,
   GET_SUBSCRIPTIONS,
   DELETE_SUBSCRIPTION
-} from './types'
+} from './typesActions'
 
 export const create = (like) => (dispatch) => {
   axios

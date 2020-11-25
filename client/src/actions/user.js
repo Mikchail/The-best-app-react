@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-import { GET_USER, USER_LOADING } from './types'
+import { GET_USER, USER_LOADING } from './typesActions'
 
 export const getUserById = (id) => (dispatch) => {
   dispatch(setUserLoading(true))

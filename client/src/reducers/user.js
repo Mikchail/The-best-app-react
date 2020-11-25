@@ -1,4 +1,4 @@
-import { USER_LOADING, GET_USER } from '../actions/types'
+import { USER_LOADING, GET_USER } from '../actions/typesActions'
 
 const initialState = {
   user: null,
